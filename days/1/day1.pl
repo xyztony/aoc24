@@ -36,7 +36,7 @@ count_occurrences(List, Elem, Count) :-
 
 % this seems super dirty as well, is a hashset of sorts, better?
 occurrences(Set, List, Res) :-
-        findall(count(Elem, Count), (member(Elem, Set), count_occurrences(List, Elem, Count)), Res).
+        findall(Elem-Count, (member(Elem, Set), count_occurrences(List, Elem, Count)), Res).
 
 /* -----------------------------------------------------------------------
    ?- count_occurrences([], 4, Count).
@@ -46,12 +46,15 @@ occurrences(Set, List, Res) :-
    %@    List = [1,2,2,3,3,3,4,3,5], Occs = [3,3,3,3], Res = 4.
    
    ?- occurrences([2,3], [1,2,2,3,2,3,2,3,4], Res), multiply_and_sum(Res, Total).
-   %@    Res = [count(2,4),count(3,3)], Total = 17.
+   %@    Res = [2-4,3-3], Total = 17.
+
+   ?- member(2-4, [2-4, 3-3]).
+   
 ----------------------------------------------------------------------- */
 
 % computation for part 2
 multiply_and_sum(Res, Total) :-
-        findall(Product, (member(count(Elem, Count), Res), Product is Elem * Count), Products),
+        findall(Product, (member(Elem-Count, Res), Product is Elem * Count), Products),
         sum_list(Products, Total).
 
 % read the csv, sep by whitespace, but idk how to do that properly,
