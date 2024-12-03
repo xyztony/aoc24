@@ -46,39 +46,42 @@ mono_inc([X, Y|T]) :-
    
 ----------------------------------------------------------------------- */
 
-safe(Ls, S) :-
-        findall(L,
-                (   member(L, Ls),
-                    (   mono_inc(L)
-                    ;   mono_dec(L))),
-                S).
 
-% part 2 wip :(
-safe_dampener(Ls, S) :-
-                findall(L,
-                (   member(L, Ls),
-                    (   mono_inc(L)
-                    ;   mono_dec(L)
-                    ;   (   select(_, L, Ld),
-                            mono_inc(Ld)
-                        ;   mono_dec(Ld)))),
-                S).
+% part 1
+safe_mono(L) :-
+        mono_inc(L) ; mono_dec(L).
 
-count_mono(Ls, Count) :-
-        safe(Ls, Valid),
+safe(Ls, ValidLs) :-
+        findall(L, (member(L, Ls), safe_mono(L)), ValidLs).
+
+count_part1(File, Count) :-
+        phrase_from_file(input(Xs), File),
+        safe(Xs, Valid),
         length(Valid, Count).
 
-count_mono_safe(Ls, Count) :-
+% ?- count_part1("./day2.txt", C).
+%@    C = 371
+%@ ;  ... .
+
+% part 2
+safe_with_dampener(L) :-
+        safe_mono(L); select(_, L, Ls1), safe_mono(Ls1).
+
+safe_dampener(Ls, ValidLs) :-
+        include(safe_with_dampener, Ls, ValidLs).
+
+count_mono_dampener(Ls, Count) :-
         safe_dampener(Ls, Valid),
         length(Valid, Count).
-        
-/* -----------------------------------------------------------------------
-   ?- phrase_from_file(input(Xs), "./day2.txt"), count_mono(Xs, Count).
-   %@    Xs = [[38,41,44,47,50,47],[75,78,79,82,85,85],[11,13,16,19,21,25],[39,40,43,44,50],[75,77,80,78,80,83,84,87],[17,20,23,21,22,23,24,22],[80,82,79,80,82,82],[50,51,49,52,56],[78,80,82,83,80,81,82,88],[43,45,48,50,52,52,55],[34,35,38,38,41,39],[51,54,57,60,62,63,63,63],[24,26,27,30,33,33,34,38],[24,25,26,26,27,28,33],[33,35,37,41,44,46],[55,58,60,63,66|...],[90,93,94,98|...],[63,64,67|...],[13,15|...],[60|...]|...], Count = 371
-   %@ ;  ... .
-   ?- phrase_from_file(input(Xs), "./day2.txt"), count_mono_safe(Xs, Count).
 
------------------------------------------------------------------------ *
+count_part2(File, Count) :-
+         phrase_from_file(input(Xs), File),
+         safe_dampener(Xs, ValidLs),
+         length(ValidLs, Count).
+
+?- count_part2("./day2.txt", C).
+%@    C = 426
+%@ ;  ... .
 
 
 
